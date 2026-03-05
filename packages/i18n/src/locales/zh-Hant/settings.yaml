@@ -188,6 +188,11 @@ pages:
         title: 模組
         description: 重設模組偏好設定與驗證資訊
         reset: 重設模組設定
+      providers-config:
+        title: 提供者設定
+        description: 匯出或匯入提供者的 API Key 與驗證資訊。匯出的檔案包含敏感資料，請妥善保管。
+        export: 匯出提供者設定
+        import: 匯入提供者設定
       providers:
         title: 服務提供者
         description: 重設所有服務提供者的設定與驗證資訊
@@ -214,6 +219,9 @@ pages:
       models_deleted: 模型已刪除
       modules_reset: 模組設定已重設
       providers_reset: 服務提供者設定已重設
+      providers_exported: 提供者設定已匯出
+      providers_imported: 提供者設定已匯入
+      providers_import_error: 匯入提供者設定失敗，請檢查檔案格式
       all_deleted: 所有本機資料已刪除
       desktop_reset: 桌面資料已重設
   models:

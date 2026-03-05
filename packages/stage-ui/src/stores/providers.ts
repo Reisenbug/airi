@@ -2091,6 +2091,38 @@ export const useProvidersStore = defineStore('providers', () => {
     return providerCredentials.value[providerId]
   }
 
+  function exportProviderConfig() {
+    const credentials: Record<string, Record<string, unknown>> = {}
+    for (const [id, creds] of Object.entries(providerCredentials.value)) {
+      if (creds && Object.keys(creds).length > 0)
+        credentials[id] = { ...creds }
+    }
+    return {
+      format: 'provider-config:v1' as const,
+      exportedAt: new Date().toISOString(),
+      credentials,
+      addedProviders: { ...addedProviders.value },
+    }
+  }
+
+  async function importProviderConfig(payload: { format: string, credentials: Record<string, Record<string, unknown>>, addedProviders: Record<string, boolean> }) {
+    if (payload.format !== 'provider-config:v1')
+      throw new Error('Invalid provider config export format')
+
+    for (const [id, creds] of Object.entries(payload.credentials))
+      providerCredentials.value[id] = creds
+
+    for (const [id, added] of Object.entries(payload.addedProviders)) {
+      if (added)
+        addedProviders.value[id] = true
+      else
+        delete addedProviders.value[id]
+    }
+
+    Object.keys(payload.credentials).forEach(initializeProvider)
+    await updateConfigurationStatus()
+  }
+
   return {
     providers: providerCredentials,
     getProviderConfig,
@@ -2116,6 +2148,8 @@ export const useProvidersStore = defineStore('providers', () => {
     getProviderInstance,
     disposeProviderInstance,
     resetProviderSettings,
+    exportProviderConfig,
+    importProviderConfig,
     forceProviderConfigured,
     availableProvidersMetadata,
     allChatProvidersMetadata,

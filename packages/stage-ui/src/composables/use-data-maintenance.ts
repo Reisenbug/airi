@@ -1,4 +1,5 @@
 import type { ChatSessionsExport } from '../types/chat-session'
+import type { ProviderConfigExport } from '../types/provider-config'
 
 import { isStageTamagotchi } from '@proj-airi/stage-shared'
 import { useLive2d } from '@proj-airi/stage-ui-live2d'
@@ -80,6 +81,23 @@ export function useDataMaintenance() {
     await chatStore.importSessions(payload)
   }
 
+  function exportProviderConfig() {
+    const data = providersStore.exportProviderConfig()
+    return new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+  }
+
+  function isProviderConfigPayload(payload: unknown): payload is ProviderConfigExport {
+    if (!payload || typeof payload !== 'object')
+      return false
+    return (payload as { format?: string }).format === 'provider-config:v1'
+  }
+
+  async function importProviderConfig(payload: Record<string, unknown>) {
+    if (!isProviderConfigPayload(payload))
+      throw new Error('Invalid provider config export format')
+    await providersStore.importProviderConfig(payload)
+  }
+
   async function resetSettingsState() {
     await settingsStore.resetState()
     audioSettingsStore.resetState()
@@ -112,6 +130,8 @@ export function useDataMaintenance() {
     deleteAllChatSessions,
     exportChatSessions,
     importChatSessions,
+    exportProviderConfig,
+    importProviderConfig,
     deleteAllData,
     resetDesktopApplicationState,
   }

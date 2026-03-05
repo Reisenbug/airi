@@ -13,6 +13,8 @@ const {
   deleteAllChatSessions,
   exportChatSessions,
   importChatSessions,
+  exportProviderConfig,
+  importProviderConfig,
   deleteAllData,
   resetDesktopApplicationState,
 } = useDataMaintenance()
@@ -21,6 +23,7 @@ const statusMessage = ref('')
 const statusTone = ref<'neutral' | 'success' | 'error'>('neutral')
 const importError = ref('')
 const importFileInput = ref<HTMLInputElement>()
+const importProviderConfigFileInput = ref<HTMLInputElement>()
 const isDesktop = computed(() => isStageTamagotchi())
 
 function setStatus(message: string, tone: 'neutral' | 'success' | 'error' = 'success') {
@@ -53,6 +56,48 @@ async function triggerExport() {
   catch (error) {
     console.error(error)
     setStatus(error instanceof Error ? error.message : String(error), 'error')
+  }
+}
+
+async function triggerProviderConfigExport() {
+  try {
+    const blob = exportProviderConfig()
+    const url = URL.createObjectURL(blob)
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = `airi-provider-config-${new Date().toISOString()}.json`
+    anchor.click()
+    URL.revokeObjectURL(url)
+    setStatus(t('settings.pages.data.status.providers_exported'))
+  }
+  catch (error) {
+    console.error(error)
+    setStatus(error instanceof Error ? error.message : String(error), 'error')
+  }
+}
+
+function triggerProviderConfigImportPicker() {
+  importProviderConfigFileInput.value?.click()
+}
+
+async function handleProviderConfigImport(event: Event) {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file)
+    return
+
+  try {
+    const raw = await file.text()
+    const parsed = JSON.parse(raw) as Record<string, unknown>
+    await importProviderConfig(parsed)
+    setStatus(t('settings.pages.data.status.providers_imported'))
+  }
+  catch (error) {
+    console.error(error)
+    setStatus(error instanceof Error ? error.message : String(error), 'error')
+  }
+  finally {
+    target.value = ''
   }
 }
 
@@ -124,6 +169,30 @@ async function handleImport(event: Event) {
       <p v-if="importError" class="text-sm text-red-500">
         {{ importError }}
       </p>
+    </div>
+
+    <div class="border-2 border-neutral-200/50 rounded-xl bg-white/70 p-4 shadow-sm dark:border-neutral-800/60 dark:bg-neutral-900/60">
+      <div class="grid grid-cols-1 items-start gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
+        <div class="flex flex-col gap-1 md:max-w-[560px]">
+          <div class="text-lg font-medium">
+            {{ t('settings.pages.data.sections.providers-config.title') }}
+          </div>
+          <p class="text-sm text-neutral-600 dark:text-neutral-400">
+            {{ t('settings.pages.data.sections.providers-config.description') }}
+          </p>
+        </div>
+        <div class="flex flex-col items-start gap-2 sm:items-end">
+          <div class="flex flex-wrap gap-2">
+            <Button variant="secondary" @click="triggerProviderConfigExport">
+              {{ t('settings.pages.data.sections.providers-config.export') }}
+            </Button>
+            <Button variant="primary" @click="triggerProviderConfigImportPicker">
+              {{ t('settings.pages.data.sections.providers-config.import') }}
+            </Button>
+          </div>
+        </div>
+      </div>
+      <input ref="importProviderConfigFileInput" type="file" accept="application/json" class="hidden" @change="handleProviderConfigImport">
     </div>
 
     <div class="border-2 border-neutral-200/50 rounded-xl bg-white/70 p-4 shadow-sm dark:border-neutral-800/60 dark:bg-neutral-900/60">

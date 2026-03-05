@@ -188,6 +188,11 @@ pages:
         title: 모듈
         description: 모듈 환경설정 및 인증 정보를 초기화합니다.
         reset: 모듈 설정 초기화
+      providers-config:
+        title: Provider configurations
+        description: Export or import provider API keys and credentials. The exported file contains sensitive data — keep it safe.
+        export: Export providers
+        import: Import providers
       providers:
         title: 제공자
         description: 모든 제공자 환경설정 및 인증 정보를 초기화합니다.
@@ -214,6 +219,9 @@ pages:
       models_deleted: 모델이 삭제되었습니다.
       modules_reset: 모듈 설정이 초기화되었습니다.
       providers_reset: 제공자 설정이 초기화되었습니다.
+      providers_exported: Provider configurations exported.
+      providers_imported: Provider configurations imported.
+      providers_import_error: Failed to import provider configurations. Please check the file format.
       all_deleted: 로컬 데이터가 초기화되었습니다.
       desktop_reset: 데스크탑 데이터가 초기화되었습니다.
   models:

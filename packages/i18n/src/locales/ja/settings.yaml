@@ -188,6 +188,11 @@ pages:
         title: モジュール
         description: モジュールの設定と認証情報をリセットします。
         reset: モジュールの設定をリセット
+      providers-config:
+        title: Provider configurations
+        description: Export or import provider API keys and credentials. The exported file contains sensitive data — keep it safe.
+        export: Export providers
+        import: Import providers
       providers:
         title: プロバイダー
         description: すべてのプロバイダーの設定と資格情報をリセットします。
@@ -214,6 +219,9 @@ pages:
       models_deleted: モデルを削除しました。
       modules_reset: モジュールの設定をリセットしました。
       providers_reset: プロバイダーの設定をリセットしました。
+      providers_exported: Provider configurations exported.
+      providers_imported: Provider configurations imported.
+      providers_import_error: Failed to import provider configurations. Please check the file format.
       all_deleted: すべてのローカルデータを削除しました。
       desktop_reset: デスクトップのデータをリセットしました。
   models:
