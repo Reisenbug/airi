@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { isStageTamagotchi } from '@proj-airi/stage-shared'
 import { useDataMaintenance } from '@proj-airi/stage-ui/composables/use-data-maintenance'
-import { Button, DoubleCheckButton } from '@proj-airi/ui'
+import { Button, DoubleCheckButton, SelectTab } from '@proj-airi/ui'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -24,6 +24,7 @@ const statusTone = ref<'neutral' | 'success' | 'error'>('neutral')
 const importError = ref('')
 const importFileInput = ref<HTMLInputElement>()
 const importProviderConfigFileInput = ref<HTMLInputElement>()
+const providerConfigExportFormat = ref<'json' | 'yaml'>('json')
 const isDesktop = computed(() => isStageTamagotchi())
 
 function setStatus(message: string, tone: 'neutral' | 'success' | 'error' = 'success') {
@@ -61,11 +62,12 @@ async function triggerExport() {
 
 async function triggerProviderConfigExport() {
   try {
-    const blob = exportProviderConfig()
+    const fmt = providerConfigExportFormat.value
+    const blob = exportProviderConfig(fmt)
     const url = URL.createObjectURL(blob)
     const anchor = document.createElement('a')
     anchor.href = url
-    anchor.download = `airi-provider-config-${new Date().toISOString()}.json`
+    anchor.download = `airi-provider-config-${new Date().toISOString()}.${fmt}`
     anchor.click()
     URL.revokeObjectURL(url)
     setStatus(t('settings.pages.data.status.providers_exported'))
@@ -88,8 +90,7 @@ async function handleProviderConfigImport(event: Event) {
 
   try {
     const raw = await file.text()
-    const parsed = JSON.parse(raw) as Record<string, unknown>
-    await importProviderConfig(parsed)
+    await importProviderConfig(raw)
     setStatus(t('settings.pages.data.status.providers_imported'))
   }
   catch (error) {
@@ -194,6 +195,14 @@ async function handleImport(event: Event) {
           </p>
         </div>
         <div class="flex flex-col items-start gap-2 sm:items-end">
+          <SelectTab
+            v-model="providerConfigExportFormat"
+            size="sm"
+            :options="[
+              { label: 'JSON', value: 'json' },
+              { label: 'YAML', value: 'yaml' },
+            ]"
+          />
           <div class="flex flex-wrap gap-2">
             <Button variant="secondary" @click="triggerProviderConfigExport">
               {{ t('settings.pages.data.sections.providers-config.export') }}
@@ -204,7 +213,7 @@ async function handleImport(event: Event) {
           </div>
         </div>
       </div>
-      <input ref="importProviderConfigFileInput" type="file" accept="application/json" class="hidden" @change="handleProviderConfigImport">
+      <input ref="importProviderConfigFileInput" type="file" accept="application/json,text/yaml,.yaml,.yml" class="hidden" @change="handleProviderConfigImport">
     </div>
 
     <div class="border-2 border-neutral-200/50 rounded-xl bg-white/70 p-4 shadow-sm dark:border-neutral-800/60 dark:bg-neutral-900/60">
