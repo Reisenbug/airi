@@ -3,6 +3,7 @@ import type { ProviderConfigExport } from '../types/provider-config'
 
 import { isStageTamagotchi } from '@proj-airi/stage-shared'
 import { useLive2d } from '@proj-airi/stage-ui-live2d'
+import { parse as parseYaml, stringify as stringifyYaml } from 'yaml'
 
 import { useChatOrchestratorStore } from '../stores/chat'
 import { useChatSessionStore } from '../stores/chat/session-store'
@@ -81,8 +82,11 @@ export function useDataMaintenance() {
     await chatStore.importSessions(payload)
   }
 
-  function exportProviderConfig() {
+  function exportProviderConfig(format: 'json' | 'yaml' = 'json') {
     const data = providersStore.exportProviderConfig()
+    if (format === 'yaml') {
+      return new Blob([stringifyYaml(data)], { type: 'text/yaml' })
+    }
     return new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
   }
 
@@ -92,7 +96,14 @@ export function useDataMaintenance() {
     return (payload as { format?: string }).format === 'provider-config:v1'
   }
 
-  async function importProviderConfig(payload: Record<string, unknown>) {
+  async function importProviderConfig(raw: string) {
+    let payload: unknown
+    try {
+      payload = JSON.parse(raw)
+    }
+    catch {
+      payload = parseYaml(raw)
+    }
     if (!isProviderConfigPayload(payload))
       throw new Error('Invalid provider config export format')
     await providersStore.importProviderConfig(payload)
