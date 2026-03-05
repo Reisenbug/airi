@@ -132,6 +132,18 @@ async function handleImport(event: Event) {
 
 <template>
   <div class="flex flex-col gap-4 pb-4">
+    <div
+      v-if="statusMessage"
+      class="rounded-lg px-4 py-2 text-sm"
+      :class="{
+        'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200': statusTone === 'success',
+        'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200': statusTone === 'error',
+        'bg-neutral-100 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200': statusTone === 'neutral',
+      }"
+    >
+      {{ statusMessage }}
+    </div>
+
     <div class="border-2 border-neutral-200/50 rounded-xl bg-white/70 p-4 shadow-sm dark:border-neutral-800/60 dark:bg-neutral-900/60">
       <div class="grid grid-cols-1 items-start gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
         <div class="flex flex-col gap-1 md:max-w-[560px]">
