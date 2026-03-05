@@ -188,11 +188,6 @@ pages:
         title: Módulos
         description: Restablece las preferencias y credenciales del módulo.
         reset: Restablecer las configuraciones del módulo
-      providers-config:
-        title: Provider configurations
-        description: Export or import provider API keys and credentials. The exported file contains sensitive data — keep it safe.
-        export: Export providers
-        import: Import providers
       providers:
         title: Proveedores
         description: Restablecer todos los ajustes y credenciales del proveedor.
@@ -219,9 +214,6 @@ pages:
       models_deleted: Modelo eliminado.
       modules_reset: Ajustes del módulo restablecidos.
       providers_reset: Configuración del proveedor restablecida.
-      providers_exported: Provider configurations exported.
-      providers_imported: Provider configurations imported.
-      providers_import_error: Failed to import provider configurations. Please check the file format.
       all_deleted: Se eliminaron todos los datos locales.
       desktop_reset: Datos de escritorio restablecidos.
   models:
