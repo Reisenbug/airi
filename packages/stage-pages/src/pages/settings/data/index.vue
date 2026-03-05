@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { isStageTamagotchi } from '@proj-airi/stage-shared'
 import { useDataMaintenance } from '@proj-airi/stage-ui/composables/use-data-maintenance'
-import { Button, DoubleCheckButton, SelectTab } from '@proj-airi/ui'
+import { Button, DoubleCheckButton } from '@proj-airi/ui'
+import { DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuRoot, DropdownMenuTrigger } from 'reka-ui'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -24,7 +25,6 @@ const statusTone = ref<'neutral' | 'success' | 'error'>('neutral')
 const importError = ref('')
 const importFileInput = ref<HTMLInputElement>()
 const importProviderConfigFileInput = ref<HTMLInputElement>()
-const providerConfigExportFormat = ref<'json' | 'yaml'>('json')
 const isDesktop = computed(() => isStageTamagotchi())
 
 function setStatus(message: string, tone: 'neutral' | 'success' | 'error' = 'success') {
@@ -60,14 +60,13 @@ async function triggerExport() {
   }
 }
 
-async function triggerProviderConfigExport() {
+async function triggerProviderConfigExport(format: 'json' | 'yaml') {
   try {
-    const fmt = providerConfigExportFormat.value
-    const blob = exportProviderConfig(fmt)
+    const blob = exportProviderConfig(format)
     const url = URL.createObjectURL(blob)
     const anchor = document.createElement('a')
     anchor.href = url
-    anchor.download = `airi-provider-config-${new Date().toISOString()}.${fmt}`
+    anchor.download = `airi-provider-config-${new Date().toISOString()}.${format}`
     anchor.click()
     URL.revokeObjectURL(url)
     setStatus(t('settings.pages.data.status.providers_exported'))
@@ -195,18 +194,35 @@ async function handleImport(event: Event) {
           </p>
         </div>
         <div class="flex flex-col items-start gap-2 sm:items-end">
-          <SelectTab
-            v-model="providerConfigExportFormat"
-            size="sm"
-            :options="[
-              { label: 'JSON', value: 'json' },
-              { label: 'YAML', value: 'yaml' },
-            ]"
-          />
           <div class="flex flex-wrap gap-2">
-            <Button variant="secondary" @click="triggerProviderConfigExport">
-              {{ t('settings.pages.data.sections.providers-config.export') }}
-            </Button>
+            <DropdownMenuRoot>
+              <DropdownMenuTrigger as-child>
+                <Button variant="secondary">
+                  {{ t('settings.pages.data.sections.providers-config.export') }}
+                  <div class="i-solar:alt-arrow-down-bold-duotone ml-1 size-3.5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuContent
+                  class="will-change-[opacity,transform] min-w-32 rounded-xl bg-white p-1 shadow-md outline-none data-[side=bottom]:animate-slideUpAndFade data-[side=top]:animate-slideDownAndFade dark:bg-neutral-800/90 dark:shadow-lg"
+                  :side-offset="8"
+                  align="end"
+                >
+                  <DropdownMenuItem
+                    class="relative flex cursor-pointer select-none items-center gap-2 rounded-lg px-3 py-2 text-sm leading-none outline-none transition-colors duration-250 ease-in-out data-[highlighted]:bg-neutral-100 dark:data-[highlighted]:bg-neutral-700/50"
+                    @click="triggerProviderConfigExport('json')"
+                  >
+                    JSON
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    class="relative flex cursor-pointer select-none items-center gap-2 rounded-lg px-3 py-2 text-sm leading-none outline-none transition-colors duration-250 ease-in-out data-[highlighted]:bg-neutral-100 dark:data-[highlighted]:bg-neutral-700/50"
+                    @click="triggerProviderConfigExport('yaml')"
+                  >
+                    YAML
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenuPortal>
+            </DropdownMenuRoot>
             <Button variant="primary" @click="triggerProviderConfigImportPicker">
               {{ t('settings.pages.data.sections.providers-config.import') }}
             </Button>
